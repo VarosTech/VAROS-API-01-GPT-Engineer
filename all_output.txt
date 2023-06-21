@@ -1,0 +1,135 @@
+Filename: organ_visualizer.py
+```python
+from typing import Dict
+import pydicom
+import vtk
+
+class OrganDescription:
+    """
+    Represents a text-based description of an organ.
+    """
+    def __init__(self, description: str):
+        self.description = description
+    
+    def parse_description(self) -> Dict[str, str]:
+        """
+        Parses the text-based description and returns a dictionary of relevant information.
+        """
+        # Placeholder implementation
+        return {"organ": "heart", "condition": "healthy"}
+
+class OrganVisualization:
+    """
+    Represents a visualization of an organ.
+    """
+    def __init__(self, organ: str, condition: str, visualization: vtk.vtkRenderWindow):
+        self.organ = organ
+        self.condition = condition
+        self.visualization = visualization
+    
+    def is_valid(self) -> bool:
+        """
+        Returns True if the visualization is valid, False otherwise.
+        """
+        # Placeholder implementation
+        return True
+    
+    def get_organ(self) -> str:
+        """
+        Returns the name of the organ.
+        """
+        return self.organ
+    
+    def get_condition(self) -> str:
+        """
+        Returns the condition of the organ.
+        """
+        return self.condition
+
+    @staticmethod
+    def generate_visualization(description: OrganDescription) -> 'OrganVisualization':
+        """
+        Generates a 3D visualization of the organ based on the information in the OrganDescription object.
+        """
+        # Placeholder implementation
+        organ = description.parse_description()["organ"]
+        condition = description.parse_description()["condition"]
+        visualization = vtk.vtkRenderWindow()
+        return OrganVisualization(organ, condition, visualization)
+
+class OrganVisualizer:
+    """
+    Main class that handles the input and output of the API.
+    """
+    def __init__(self):
+        self.request_count = 0
+        self.successful_request_count = 0
+    
+    def process_description(self, description: OrganDescription) -> OrganVisualization:
+        """
+        Takes an OrganDescription object as input and returns an OrganVisualization object as output.
+        """
+        self.request_count += 1
+        visualization = OrganVisualization.generate_visualization(description)
+        if visualization.is_valid():
+            self.successful_request_count += 1
+        return visualization
+    
+    def handle_error(self, description: OrganDescription) -> str:
+        """
+        Handles errors and returns a clear error message.
+        """
+        # Placeholder implementation
+        return "Invalid organ description"
+    
+    def log_request(self, description: OrganDescription, visualization: OrganVisualization):
+        """
+        Logs requests and their outcomes for debugging and performance monitoring purposes.
+        """
+        # Placeholder implementation
+        pass
+    
+    def get_request_count(self) -> int:
+        """
+        Returns the total number of requests.
+        """
+        return self.request_count
+    
+    def get_successful_request_count(self) -> int:
+        """
+        Returns the number of successful requests.
+        """
+        return self.successful_request_count
+```
+
+Filename: app.py
+```python
+from flask import Flask, request, jsonify
+from organ_visualizer import OrganVisualizer, OrganDescription
+
+app = Flask(__name__)
+visualizer = OrganVisualizer()
+
+@app.route('/visualize', methods=['POST'])
+def visualize_organ():
+    """
+    Endpoint for visualizing an organ based on a text-based description.
+    """
+    description = OrganDescription(request.json['description'])
+    visualization = visualizer.process_description(description)
+    if visualization.is_valid():
+        visualizer.log_request(description, visualization)
+        return jsonify({"organ": visualization.get_organ(), "condition": visualization.get_condition()}), 200
+    else:
+        error_message = visualizer.handle_error(description)
+        return jsonify({"error": error_message}), 400
+```
+
+Filename: requirements.txt
+```
+pydicom
+vtk
+flask
+```
+
+Note: The above code is a basic implementation and may require additional modifications and testing to ensure full functionality and scalability.

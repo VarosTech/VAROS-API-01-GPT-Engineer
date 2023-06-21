@@ -1,0 +1,86 @@
+from typing import List
+import vtk
+import pydicom
+from flask import Flask, request, Response
+from dataclasses import dataclass
+
+app = Flask(__name__)
+
+@dataclass
+class Organ:
+    name: str
+    description: str
+    image_path: str
+
+class OrganVisualizer:
+    def __init__(self, organs: List[Organ]):
+        self.organs = organs
+
+    def visualize_organ(self, organ_name: str) -> bytes:
+        organ = next((o for o in self.organs if o.name == organ_name), None)
+        if not organ:
+            raise ValueError("Invalid organ name. Please provide a valid organ name.")
+        reader = vtk.vtkDICOMImageReader()
+        reader.SetDirectoryName(organ.image_path)
+        reader.Update()
+        image_data = reader.GetOutput()
+        image_actor = vtk.vtkImageActor()
+        image_actor.SetInputData(image_data)
+        renderer = vtk.vtkRenderer()
+        renderer.AddActor(image_actor)
+        renderer.ResetCamera()
+        render_window = vtk.vtkRenderWindow()
+        render_window.AddRenderer(renderer)
+        render_window.Render()
+        window_to_image_filter = vtk.vtkWindowToImageFilter()
+        window_to_image_filter.SetInput(render_window)
+        window_to_image_filter.Update()
+        writer = vtk.vtkPNGWriter()
+        writer.SetWriteToMemory(True)
+        writer.SetInputConnection(window_to_image_filter.GetOutputPort())
+        writer.Write()
+        png_bytes = writer.GetResult()
+        return png_bytes
+
+class ErrorHandler:
+    def handle_error(self, error_type: str) -> str:
+        if error_type == "invalid_organ_name":
+            return "Invalid organ name. Please provide a valid organ name."
+        else:
+            return "An unknown error occurred. Please try again later."
+
+class Logger:
+    def log_request(self, request: str) -> None:
+        print(f"Request: {request}")
+
+    def log_outcome(self, outcome: str) -> None:
+        print(f"Outcome: {outcome}")
+
+# Sample data for testing purposes
+organs = [
+    Organ(name="heart", description="A healthy heart", image_path="sample_data/heart"),
+    Organ(name="liver", description="A liver with cirrhosis", image_path="sample_data/liver")
+]
+
+organ_visualizer = OrganVisualizer(organs)
+error_handler = ErrorHandler()
+logger = Logger()
+
+@app.route("/organ/visualize")
+def visualize_organ():
+    organ_name = request.args.get("name")
+    if not organ_name:
+        error_message = error_handler.handle_error("invalid_organ_name")
+        logger.log_outcome(f"400 Bad Request: {error_message}")
+        return Response(error_message, status=400)
+    try:
+        png_bytes = organ_visualizer.visualize_organ(organ_name)
+        logger.log_outcome("200 OK")
+        return Response(png_bytes, mimetype="image/png")
+    except ValueError as e:
+        error_message = str(e)
+        logger.log_outcome(f"400 Bad Request: {error_message}")
+        return Response(error_message, status=400)
+
+if __name__ == "__main__":
+    app.run()
