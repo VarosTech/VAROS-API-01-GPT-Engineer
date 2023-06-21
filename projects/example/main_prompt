@@ -1,1 +1,14 @@
-We are writing snake in python. MVC components split in separate files. Keyboard control.
+I am seeking to develop a sophisticated organ visualizer API for a digital health platform. This API will be responsible for generating clinically accurate and representative visualizations of human body organs based on text-based descriptions.
+
+The input to the API will be descriptions of organs, which could range from simple descriptions like "healthy heart" or "inflamed liver" to more complex ones that include specific medical conditions or abnormalities. The API should be capable of interpreting these descriptions and generating detailed, realistic 3D visualizations of the corresponding organ. These visualizations should provide a comprehensive view of the organ from various angles and highlight any features or conditions mentioned in the description.
+
+The API will be built using Python and should leverage the following libraries:
+
+PyDicom: This library will be used for handling DICOM files, which are the standard for storing and transmitting medical images.
+VTK (The Visualization Toolkit): This library will be used for generating the 3D visualizations of the organs.
+Flask: This lightweight framework will be used for setting up the API.
+The code should be well-structured and easy to understand. It should follow best practices for Python development and include comments that explain the purpose and functionality of each part of the code.
+
+The API should also include robust error handling capabilities. In cases where the input description is invalid or unclear, the API should return a clear and helpful error message. Additionally, the API should include a logging system that tracks each request and its outcome. This will be useful for debugging purposes and for monitoring the performance of the API.
+
+Finally, the API should be designed with scalability in mind. As the digital health platform grows, the API should be able to handle an increasing volume of requests without compromising on performance or the accuracy of the visualizations.
