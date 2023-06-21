@@ -18,7 +18,7 @@ app = typer.Typer()
 def main(
     project_path: str = typer.Argument("example", help="path"),
     delete_existing: bool = typer.Argument(False, help="delete existing files"),
-    model: str = "gpt-4",
+    model: str = "gpt-3.5-turbo",
     temperature: float = 0.1,
     steps_config: str = "default",
     verbose: bool = typer.Option(False, "--verbose", "-v"),
